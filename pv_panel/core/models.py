@@ -4,12 +4,15 @@ from django.utils import timezone
 from nasab_users.models import Installer
 from users.models import Customer
 import jdatetime
+from django.utils.translation import gettext_lazy as _
+
+
 
 class Product(models.Model):
-    serial_number = models.CharField(max_length=50, unique=True, verbose_name="شماره سریال")
-    model_name = models.CharField(max_length=100, verbose_name="نام مدل")
-    warranty_months = models.PositiveIntegerField(default=12, verbose_name="مدت گارانتی (ماه)")
-    purchase_date = models.DateField(null=True, blank=True, verbose_name="تاریخ خرید")
+    serial_number = models.CharField(max_length=50, unique=True, verbose_name=_("شماره سریال"))
+    model_name = models.CharField(max_length=100, verbose_name=_("نام مدل"))
+    warranty_months = models.PositiveIntegerField(default=12, verbose_name=_("مدت گارانتی (ماه)"))
+    purchase_date = models.DateField(null=True, blank=True, verbose_name=_("تاریخ خرید"))
 
     def __str__(self):
         return f"{self.model_name} - {self.serial_number}"
@@ -19,8 +22,8 @@ class Installation(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product)
     installer = models.ForeignKey(Installer, on_delete=models.SET_NULL, null=True)
-    installation_date = models.DateTimeField(default=timezone.now, verbose_name="تاریخ نصب")
-    notes = models.TextField(blank=True, verbose_name="توضیحات")
+    installation_date = models.DateTimeField(default=timezone.now, verbose_name=_("تاریخ نصب"))
+    notes = models.TextField(blank=True, verbose_name=_("توضیحات"))
 
     def warranty_end_dates(self):
         """

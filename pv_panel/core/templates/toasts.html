@@ -1,0 +1,110 @@
+<!-- templates/your_app/toasts.html -->
+<div id="toast-container" class="fixed top-5 left-5 space-y-3 z-50">
+    {% for message in messages %}
+        <div id="toast-{{ forloop.counter }}" 
+             class="relative flex items-center w-full max-w-xs p-4 rounded-lg shadow-lg border transition-all duration-1000 ease-in-out opacity-0 transform -translate-x-full"
+             role="alert"
+             data-type="{{ message.tags }}">
+            
+            <!-- Toast Icon - Only show for error and warning -->
+            {% if message.tags == 'error' or message.tags == 'warning' %}
+            <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 
+                        {% if message.tags == 'error' %} text-red-500 bg-red-100 rounded-lg
+                        {% elif message.tags == 'warning' %} text-orange-500 bg-orange-100 rounded-lg {% endif %}">
+                
+                {% if message.tags == 'error' %}
+                    <!-- Error Icon -->
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="sr-only">Error icon</span>
+                
+                {% elif message.tags == 'warning' %}
+                    <!-- Warning Icon -->
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="sr-only">Warning icon</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Toast Message -->
+            <div class="text-sm font-normal 
+                        {% if message.tags == 'error' %}text-red-800 ml-3
+                        {% elif message.tags == 'warning' %}text-orange-800 ml-3
+                        {% elif message.tags == 'success' %}text-green-800 {% if message.tags == 'error' or message.tags == 'warning' %}ml-3{% endif %}
+                        {% else %}text-gray-800 ml-3{% endif %}">
+                {{ message }}
+            </div>
+
+            <!-- Close Button -->
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8 
+                        {% if message.tags == 'error' %} bg-red-50 text-red-500 hover:bg-red-200 focus:ring-red-400
+                        {% elif message.tags == 'warning' %} bg-orange-50 text-orange-500 hover:bg-orange-200 focus:ring-orange-400
+                        {% elif message.tags == 'success' %} bg-green-50 text-green-500 hover:bg-green-200 focus:ring-green-400
+                        {% else %} bg-gray-50 text-gray-500 hover:bg-gray-200 focus:ring-gray-400 {% endif %}" 
+                    data-dismiss-target="#toast-{{ forloop.counter }}" 
+                    aria-label="Close">
+                <span class="sr-only">Close</span>
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('#toast-container > div');
+        
+        toasts.forEach((toast) => {
+            // Set background color based on message type
+            if (toast.dataset.type === 'error') {
+                toast.classList.add('bg-red-50', 'border-red-200');
+            } else if (toast.dataset.type === 'warning') {
+                toast.classList.add('bg-orange-50', 'border-orange-200');
+            } else if (toast.dataset.type === 'success') {
+                toast.classList.add('bg-green-50', 'border-green-200');
+            } else {
+                toast.classList.add('bg-white', 'border-gray-200');
+            }
+
+            // Slide in from left and fade in
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', '-translate-x-full');
+                toast.classList.add('opacity-100', 'translate-x-0');
+            }, 100);
+
+            // Auto-hide after 15000 milliseconds (15 seconds)
+            const timeoutId = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-x-0');
+                toast.classList.add('opacity-0', '-translate-x-full');
+                
+                // Remove from DOM after fade out
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 1000);
+            }, 15000);
+
+            // Manual close button functionality
+            const closeButton = toast.querySelector('[data-dismiss-target]');
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    clearTimeout(timeoutId);
+                    toast.classList.remove('opacity-100', 'translate-x-0');
+                    toast.classList.add('opacity-0', '-translate-x-full');
+                    
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.remove();
+                        }
+                    }, 1000);
+                });
+            }
+        });
+    });
+</script>

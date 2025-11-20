@@ -9,6 +9,7 @@ from core.forms import InstallationForm
 from users.forms import CustomerPhoneForm
 from jdatetime import datetime as jdatetime
 from django.contrib.auth import authenticate, login, logout
+from django.utils.translation import gettext_lazy as _
 
 
 def installer_login(request):
@@ -24,9 +25,9 @@ def installer_login(request):
                 login(request, user)
                 return redirect("installer_panel")
             else:
-                messages.error(request, "این حساب متعلق به نصاب نیست!")
+                messages.error(request, _("این حساب متعلق به نصاب نیست!"))
         else:
-            messages.error(request, "نام کاربری یا رمز عبور اشتباه است.")
+            messages.error(request, _("نام کاربری یا رمز عبور اشتباه است."))
 
     return render(request, "installer_login.html")
     
@@ -54,7 +55,7 @@ def installer_panel(request):
         try:
             customer = Customer.objects.get(phone=customer_phone)
         except Customer.DoesNotExist:
-            messages.error(request, "مشتری با این شماره پیدا نشد!")
+            messages.error(request, _("مشتری با این شماره پیدا نشد!"))
             return redirect("installer_panel")
 
         # ایجاد نصب جدید
@@ -68,7 +69,7 @@ def installer_panel(request):
         selected_products = Product.objects.filter(id__in=product_ids)
         installation.products.set(selected_products)
 
-        messages.success(request, "نصب با موفقیت ثبت شد")
+        messages.success(request, _("نصب با موفقیت ثبت شد"))
         return redirect("installer_panel")
 
     return render(request, "installer_panel.html", {

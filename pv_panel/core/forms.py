@@ -2,11 +2,12 @@
 from django import forms
 from .models import Installation, Product
 from users.models import Customer
+from django.utils.translation import gettext_lazy as _
 
 
 class InstallationForm(forms.ModelForm):
-    customer_phone = forms.CharField(max_length=11, label="شماره موبایل مشتری")
-    serial_number = forms.CharField(max_length=50, label="شماره سریال محصول")
+    customer_phone = forms.CharField(max_length=11, label=_("شماره موبایل مشتری"))
+    serial_number = forms.CharField(max_length=50, label=_("شماره سریال محصول"))
 
     class Meta:
         model = Installation
@@ -29,10 +30,10 @@ class InstallationForm(forms.ModelForm):
         try:
             product = Product.objects.get(serial_number=serial)
             if Installation.objects.filter(product=product).exists():
-                raise forms.ValidationError("این محصول قبلاً نصب شده است.")
+                raise forms.ValidationError(_("این محصول قبلاً نصب شده است."))
             return product
         except Product.DoesNotExist:
-            raise forms.ValidationError("شماره سریال یافت نشد.")
+            raise forms.ValidationError(_("شماره سریال یافت نشد."))
 
     def save(self, commit=True):
         installation = super().save(commit=False)

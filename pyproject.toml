@@ -1,0 +1,19 @@
+[project]
+name = "user-panel-pv"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Sattar Amini",email = "sattaramini987654@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django (>=5.2.8,<6.0.0)",
+    "whitenoise (>=6.11.0,<7.0.0)",
+    "jdatetime (>=5.2.0,<6.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,30 @@
+<!-- warranty/templates/warranty/customer_login.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}استعلام گارانتی{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-screen -mt-20">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-indigo-600 dark:text-indigo-400">استعلام گارانتی</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">شماره موبایل خود را وارد کنید</p>
+        </div>
+
+        <form method="post" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+            {% csrf_token %}
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2">شماره موبایل</label>
+                <input type="text" name="phone" maxlength="11" placeholder="09123456789"
+                       class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700"
+                       required>
+            </div>
+            <button type="submit"
+                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 rounded-xl transition shadow-lg">
+                مشاهده گارانتی
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

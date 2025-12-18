@@ -37,6 +37,8 @@ def installer_login(request):
 def installer_logout(request):
     logout(request)
     return redirect("installer_login")
+
+
 @login_required
 def installer_panel(request):
     if not hasattr(request.user, "installer"):
@@ -50,6 +52,7 @@ def installer_panel(request):
         customer_phone = request.POST.get("customer_phone")
         product_ids = request.POST.getlist("product_id")  # ← توجه: لیست محصول‌ها
         notes = request.POST.get("notes")
+        product_count = request.POST.get("product_count")
 
         # پیدا کردن مشتری
         try:
@@ -62,6 +65,7 @@ def installer_panel(request):
         installation = Installation.objects.create(
             customer=customer,
             installer=installer,
+            count = product_count,
             notes=notes
         )
 

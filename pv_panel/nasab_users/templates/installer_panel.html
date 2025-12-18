@@ -22,8 +22,8 @@
                    class="w-full px-4 py-3 border rounded-xl focus:ring-4 focus:ring-indigo-500 dark:bg-gray-700">
         </div>
         <div>
-            <label class="block font-medium mb-2">شماره سریال</label>
-            <input name="serial_number" placeholder="ABC123456789" required
+            <label class="block font-medium mb-2"> تعداد محصول </label>
+            <input name="product_count" placeholder="10" required
                    class="w-full px-4 py-3 border rounded-xl focus:ring-4 focus:ring-indigo-500 dark:bg-gray-700">
         </div>
         <div>
@@ -58,7 +58,12 @@
     {% for inst in installations %}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex justify-between items-center">
         <div>
-            <p class="font-bold">{{ inst.product.model_name }} - {{ inst.product.serial_number }}</p>
+            {% for product in inst.products.all %}
+                    <p class="font-bold"> مدل: {{ product.model_name }} - شماره سریال : {{ product.serial_number }} - تعداد محصول : {{ inst.count }} </p>
+            {% empty %}
+                <p class="font-bold">هیچ محصولی برای این نصب ثبت نشده است</p>
+            {% endfor %}
+
             <p class="text-sm text-gray-500">مشتری: {{ inst.customer.phone }} | تاریخ: {{ inst.installation_date|date:"Y/m/d H:i" }}</p>
         </div>
         <span class="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-4 py-2 rounded-full text-sm font-bold">

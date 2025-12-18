@@ -1,53 +1,66 @@
 <!-- warranty/templates/warranty/customer_panel.html -->
 {% extends 'base.html' %}
+
 {% block title %}پنل مشتری{% endblock %}
 
 {% block content %}
-<div class="text-center mb-10">
-    <h1 class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">پنل گارانتی شما</h1>
-    <p class="mt-2 text-lg">خوش آمدید، {{ customer.full_name|default:customer.phone }}</p>
-    <a href="{% url 'customer_login' %}" class="text-sm text-red-500 hover:underline">خروج</a>
-</div>
+<div class="container mx-auto px-4 py-8">
+    <div class="text-center mb-10">
+        <h1 class="text-3xl font-bold text-indigo-600 dark:text-indigo-400"> گارانتی های شما</h1>
+        <p class="mt-2 text-lg">خوش آمدید، {{ customer.full_name|default:customer.phone }}</p>
+        <a href="{% url 'customer_login' %}" class="text-sm text-red-500 hover:underline">خروج</a>
+    </div>
 
-{% if installations %}
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {% for inst in installations %}
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition">
-            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-5 text-white">
-                <h3 class="text-xl font-bold">{{ inst.product.model_name }}</h3>
-                <p class="text-sm opacity-90">سریال: {{ inst.product.serial_number }}</p>
-            </div>
-            <div class="p-6">
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between">
-                        <span>تاریخ نصب:</span>
-                        <span class="font-bold text-indigo-600 dark:text-indigo-400">
-                            {{ inst.installation_date|date:"Y/m/d" }}
-                        </span>
+    {% if all_warranty_info %}
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {% for warranty_item in all_warranty_info %}
+                {% with product=warranty_item.product %}
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300">
+                        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-5 text-white">
+                            <h3 class="text-xl font-bold text-center">{{ product.model_name }}</h3>
+                            <h3 class="text-l opacity-100 text-center"> تعداد:   {{ warranty_item.count }}</h3>
+                            <p class="text-sm opacity-90 text-center">سریال: {{ product.serial_number }}</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span>تاریخ نصب:</span>
+                                    <span class="font-bold text-indigo-600 dark:text-indigo-400">
+                                        {{ warranty_item.jalali_installation_date }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>پایان گارانتی:</span>
+                                    <span class="{% if warranty_item.remaining_days > 30 %}text-green-600{% elif warranty_item.remaining_days > 0 %}text-orange-600{% else %}text-red-600{% endif %} font-bold">
+                                        {{ warranty_item.jalali_end_date|date:"Y/m/d" }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>نصاب:</span>
+                                    <span class="font-bold text-gray-600">
+                                        {{ warranty_item.installer.full_name|default:"گاما" }}
+                                    </span>
+                                </div>
+                                <div class="text-center mt-4 pt-4 border-t dark:border-gray-700">
+                                    {% if warranty_item.remaining_days > 0 %}
+                                        <span class="text-3xl font-bold text-green-600">{{ warranty_item.remaining_days }}</span>
+                                        <span class="text-gray-500"> روز باقی‌مانده</span>
+                                    {% else %}
+                                        <span class="text-3xl font-bold text-red-600">منقضی شده</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between">
-                        <span>پایان گارانتی:</span>
-                        <span class="{% if inst.remaining_days > 30 %}text-green-600{% elif inst.remaining_days > 0 %}text-orange-600{% else %}text-red-600{% endif %} font-bold">
-                            {{ inst.warranty_end_date|date:"Y/m/d" }}
-                        </span>
-                    </div>
-                    <div class="text-center mt-4 pt-4 border-t dark:border-gray-700">
-                        {% if inst.remaining_days > 0 %}
-                            <span class="text-3xl font-bold text-green-600">{{ inst.remaining_days }}</span>
-                            <span class="text-gray-500"> روز باقی‌مانده</span>
-                        {% else %}
-                            <span class="text-3xl font-bold text-red-600">منقضی شده</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+                {% endwith %}
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <div class="text-center py-20">
-        <div class="text-6xl mb-4">📦</div>
-        <p class="text-xl text-gray-500">هنوز محصولی برای شما ثبت نشده است.</p>
-    </div>
-{% endif %}
+    {% else %}
+        <div class="text-center py-20">
+            <div class="text-6xl mb-4">📦</div>
+            <p class="text-xl text-gray-500">هنوز محصولی برای شما ثبت نشده است.</p>
+            <p class="text-gray-400 mt-2">لطفاً نصاب خود را مطلع کنید تا گارانتی محصولات شما را ثبت کند.</p>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

@@ -2,11 +2,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from nasab_users.models import Installer
 from .models import Customer
-from core.models import Installation, Product
+from core.models import Installation
 
-from core.forms import InstallationForm
 from .forms import CustomerPhoneForm
 import jdatetime
 
@@ -23,24 +21,30 @@ def customer_login(request):
         form = CustomerPhoneForm()
     return render(request, 'core_login.html', {'form': form})
 
+import jdatetime
+
 def customer_panel(request):
+    # فرض می‌کنیم که کاربر وارد شده باشد
     phone = request.session.get('customer_phone')
     if not phone:
         return redirect('customer_login')
 
     customer = get_object_or_404(Customer, phone=phone)
-    installations = Installation.objects.filter(customer=customer).prefetch_related('products').order_by('-installation_date')
 
-    # Get warranty information for all installations
-    all_warranty_info = []
+    # بارگذاری نصب‌ها و اطلاعات گارانتی
+    installations = Installation.objects.filter(customer=customer).order_by('-installation_date')
+
+    # تبدیل تاریخ‌ها به جلالی
     for installation in installations:
         warranty_info = installation.get_product_warranty_info()
-        all_warranty_info.extend(warranty_info)
+        for item in warranty_info:
+            # اضافه کردن تاریخ شمسی به هر گارانتی
+            item['jalali_installation_date'] = jdatetime.datetime.fromgregorian(datetime=installation.installation_date).strftime('%Y/%m/%d')
+            item['jalali_end_date'] = jdatetime.datetime.fromgregorian(datetime=item['warranty_end_date']).strftime('%Y/%m/%d')
 
     context = {
         'customer': customer,
-        'installations': installations,
-        'all_warranty_info': all_warranty_info,
-        'today_jalali': jdatetime.datetime.now().strftime('%Y/%m/%d'),
+        'installations': installations
     }
+
     return render(request, 'user_panel.html', context)

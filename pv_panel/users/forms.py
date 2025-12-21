@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from core.models import Installation, Product
+from core.models import Installation
 from users.models import Customer
 
 

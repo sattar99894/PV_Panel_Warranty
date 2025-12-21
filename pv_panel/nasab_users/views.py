@@ -3,13 +3,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import  Installer
-from core.models import Installation, Product
+from core.models import Installation
 from users.models import Customer
-from core.forms import InstallationForm
 from users.forms import CustomerPhoneForm
 from jdatetime import datetime as jdatetime
 from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import gettext_lazy as _
+from core.forms import InstallationForm, InstallationImageFormSet
 
 
 def installer_login(request):
@@ -41,47 +41,47 @@ def installer_logout(request):
 
 @login_required
 def installer_panel(request):
-    if not hasattr(request.user, "installer"):
-        return redirect("installer_login")
-
     installer = request.user.installer
     installations = Installation.objects.filter(installer=installer)
-    products = Product.objects.all()  # لیست محصولات برای فرم
 
     if request.method == "POST":
-        customer_phone = request.POST.get("customer_phone")
-        product_ids = request.POST.getlist("product_id")  # ← توجه: لیست محصول‌ها
-        notes = request.POST.get("notes")
-        product_count = request.POST.get("product_count")
+        form = InstallationForm(request.POST)
+        formset = InstallationImageFormSet(request.POST, request.FILES)  # ارسال فایل‌ها
 
-        # پیدا کردن مشتری
-        try:
-            customer = Customer.objects.get(phone=customer_phone)
-        except Customer.DoesNotExist:
-            messages.error(request, _("مشتری با این شماره پیدا نشد!"))
-            return redirect("installer_panel")
+        # چاپ وضعیت فرم و فرم‌ست
+        print("Form is valid:", form.is_valid())  # چاپ وضعیت اعتبارسنجی فرم
+        print("Formset is valid:", formset.is_valid())  # چاپ وضعیت اعتبارسنجی فرم‌ست
 
-        # ایجاد نصب جدید
-        installation = Installation.objects.create(
-            customer=customer,
-            installer=installer,
-            count = product_count,
-            notes=notes
-        )
+        # چاپ ارورهای فرم و فرم‌ست
+        if not form.is_valid():
+            print("Form errors:", form.errors)  # چاپ ارورهای فرم
 
-        # اضافه کردن محصولات انتخاب شده
-        selected_products = Product.objects.filter(id__in=product_ids)
-        installation.products.set(selected_products)
+        if not formset.is_valid():
+            print("Formset errors:", formset.errors)  # چاپ ارورهای فرم‌ست
 
-        messages.success(request, _("نصب با موفقیت ثبت شد"))
-        return redirect("installer_panel")
+        if form.is_valid() and formset.is_valid():
+            installation = form.save(commit=False)
+            installation.installer = installer
+            installation.save()  # ذخیره نصب
+            formset.instance = installation
+            formset.save()  # ذخیره تصاویر نصب
+            messages.success(request, "نصب با موفقیت ثبت شد.")
+            return redirect('installer_panel')
+        else:
 
-    return render(request, "installer_panel.html", {
-        "installer": installer,
-        "installations": installations,
-        "products": products,
-    })
+            messages.error(request, "لطفاً فرم‌ها را به درستی پر کنید.")
+            # در صورت عدم اعتبارسنجی صحیح فرم‌ها، چاپ ارورهای بیشتری
+            print("Form errors after submission:", form.errors)
+            print("Formset errors after submission:", formset.errors)
+    
+    else:
+        form = InstallationForm()
+        formset = InstallationImageFormSet()
 
+    context = {
+        'form': form,
+        'formset': formset,
+        'installations': installations,
+    }
 
-
-
+    return render(request, 'installer_panel.html', context)

@@ -1,7 +1,7 @@
 # warranty/admin.py
 from django.contrib import admin
 from .models import Customer
-from core.models import  Product, Installation
+from core.models import   Installation
 from nasab_users.models import Installer
 
 

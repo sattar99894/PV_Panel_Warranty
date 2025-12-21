@@ -1,7 +1,7 @@
 # warranty/admin.py
 from django.contrib import admin
 from users.models import Customer
-from core.models import  Product, Installation
+from core.models import Installation
 from .models import Installer
 
 
